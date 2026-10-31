@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en" data-tool="sql">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>proto-tap: see every query, request, and call your app sends</title>
+  <meta name="description" content="Real-time traffic viewers, one per protocol. A small proxy sits between your app and its backend and shows the traffic in your terminal or browser. No code changes.">
+  <meta name="theme-color" content="#4ec9b0">
+  <link rel="canonical" href="https://proto-tap.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://proto-tap.github.io/">
+  <meta property="og:title" content="proto-tap: see every query, request, and call your app sends">
+  <meta property="og:description" content="Real-time traffic viewers for SQL, HTTP, and gRPC. No code changes.">
+  <meta property="og:image" content="https://proto-tap.github.io/assets/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icon-512.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Martian+Mono:wdth,wght@75..112.5,100..800&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+<header class="hero">
+  <nav class="nav wrap" aria-label="Main">
+    <a class="brand" href="./"><img src="assets/icon.svg" alt="" width="32" height="32">proto-tap</a>
+    <ul>
+      <li><a href="#sql-tap">sql-tap</a></li>
+      <li><a href="#http-tap">http-tap</a></li>
+      <li><a href="#grpc-tap">grpc-tap</a></li>
+      <li><a href="https://github.com/proto-tap">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <div class="intro wrap">
+    <h1>See every <span data-text="noun">query</span><br>your app sends.</h1>
+    <div class="intro-side">
+      <p>A small proxy sits between your app and its backend and shows the traffic live, in your terminal or browser. No SDK, no code changes.</p>
+      <div class="cmd">
+        <code data-text="install">brew install --cask proto-tap/tap/sql-tap</code>
+        <button type="button" class="copy">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="line" aria-hidden="true">
+    <div class="pipe"></div>
+    <div class="pipe-labels wrap">
+      <span>your app</span>
+      <span data-text="backend">PostgreSQL</span>
+    </div>
+    <div class="fitting wrap">
+      <svg class="tap" viewBox="0 0 120 140" width="120" height="140">
+        <rect x="24.5" width="71" height="18" rx="9"/>
+        <rect x="51.5" y="10" width="17" height="30"/>
+        <path d="M14 82c16 0 24 8 24 24v14h44v-14c0-16 8-24 24-24z"/>
+        <rect x="30.5" y="116" width="59" height="17" rx="5"/>
+      </svg>
+      <span class="daemon" data-text="daemon">sql-tapd</span>
+    </div>
+  </div>
+
+  <section class="term wrap" aria-label="Live traffic demo">
+    <div class="win">
+      <div class="tabs win-tabs" role="tablist" aria-label="Choose a protocol" data-tool-tabs>
+        <button type="button" role="tab" aria-selected="true" data-tool="sql">sql-tap</button>
+        <button type="button" role="tab" aria-selected="false" data-tool="http">http-tap</button>
+        <button type="button" role="tab" aria-selected="false" data-tool="grpc">grpc-tap</button>
+      </div>
+      <div class="tui" aria-hidden="true">
+        <div class="box list">
+          <div class="box-title"><span data-tui="title">sql-tap (0 queries)</span></div>
+          <div class="row head" data-tui="head"></div>
+          <ol class="rows" data-tui="rows"></ol>
+        </div>
+        <dl class="box detail" data-tui="detail"></dl>
+        <p class="help" data-tui="help"></p>
+      </div>
+      <noscript><img src="assets/shots/sql-list.webp" alt="The sql-tap terminal client listing captured queries"></noscript>
+    </div>
+  </section>
+</header>
+
+<main>
+  <section class="steps" aria-labelledby="steps-title">
+    <div class="wrap">
+      <h2 id="steps-title">Three steps. No code changes.</h2>
+      <ol class="step-list">
+        <li>
+          <div>
+            <h3>Start the proxy</h3>
+            <p data-text="step1Note">The daemon forwards traffic to your backend and captures it on the way through.</p>
+          </div>
+          <pre tabindex="0"><code data-text="step1">DATABASE_URL="postgres://user:pass@localhost:5432/db?sslmode=disable" \
+  sql-tapd --driver=postgres --listen=:5433 --upstream=localhost:5432</code></pre>
+        </li>
+        <li>
+          <div>
+            <h3>Point your app at it</h3>
+            <p data-text="step2Note">Change the port and nothing else. sql-tapd speaks the native wire protocol, so your driver doesn't notice.</p>
+          </div>
+          <pre tabindex="0"><code data-text="step2">DATABASE_URL="postgres://user:pass@localhost:5433/db?sslmode=disable"</code></pre>
+        </li>
+        <li>
+          <div>
+            <h3>Watch the traffic</h3>
+            <p data-text="step3Note">Add --http=:8080 to the daemon to get the Web UI in your browser too.</p>
+          </div>
+          <pre tabindex="0"><code data-text="step3">sql-tap localhost:9091</code></pre>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band" id="sql-tap" data-paint="sql" aria-labelledby="sql-title">
+    <div class="wrap band-grid">
+      <div class="band-copy">
+        <h2 id="sql-title">sql-tap</h2>
+        <p class="lede">For PostgreSQL, MySQL, and TiDB. It reads the database wire protocol, so you see what actually reached the database, whatever your ORM generated.</p>
+        <ul>
+          <li>Inspect each query with its bound arguments, rows affected, and transaction</li>
+          <li>Run EXPLAIN or EXPLAIN ANALYZE from the list, and edit the query first to try a fix</li>
+          <li>Flag N+1 and slow queries as they happen</li>
+          <li>Filter with <code>d&gt;100ms</code>, <code>op:select</code>, <code>error</code>, or <code>n+1</code></li>
+        </ul>
+        <p class="links"><a href="https://github.com/proto-tap/sql-tap">sql-tap on GitHub</a></p>
+      </div>
+      <div class="viewer">
+        <div class="win">
+          <div class="tabs win-tabs" role="tablist" aria-label="sql-tap screens">
+            <button type="button" role="tab" aria-selected="true" aria-controls="sql-p1" id="sql-t1">N+1 detection</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="sql-p2" id="sql-t2">EXPLAIN</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="sql-p3" id="sql-t3">Analytics</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="sql-p4" id="sql-t4">Web UI</button>
+          </div>
+          <div class="panels">
+            <div class="panel" role="tabpanel" id="sql-p1" aria-labelledby="sql-t1" tabindex="0">
+              <img src="assets/shots/sql-nplus1.webp" width="1786" height="854" alt="sql-tap filtered to n+1, listing twelve runs of the same SELECT, each marked N+1" loading="lazy">
+            </div>
+            <div class="panel" role="tabpanel" id="sql-p2" aria-labelledby="sql-t2" tabindex="0" hidden>
+              <img src="assets/shots/sql-explain.webp" width="1786" height="688" alt="An EXPLAIN plan for a captured query, shown inside sql-tap" loading="lazy">
+            </div>
+            <div class="panel" role="tabpanel" id="sql-p3" aria-labelledby="sql-t3" tabindex="0" hidden>
+              <img src="assets/shots/sql-analytics.webp" width="1786" height="600" alt="sql-tap analytics grouping queries by template with count, average, p95, max, and total time" loading="lazy">
+            </div>
+            <div class="panel" role="tabpanel" id="sql-p4" aria-labelledby="sql-t4" tabindex="0" hidden>
+              <img src="assets/shots/web-sql.webp" width="2800" height="1720" alt="The sql-tap Web UI with a toast reporting an N+1 query and the flagged rows highlighted" loading="lazy">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ci">
+        <div>
+          <h3>Fail the build on N+1 and slow queries</h3>
+          <p>Run your tests through the proxy with <code>sql-tap -ci</code> watching. It prints a report when it stops and exits 1 if it found problems.</p>
+        </div>
+        <pre class="report" tabindex="0"><code>sql-tap CI Report
+=================
+Captured: 307 queries
+
+Problems found:
+  [N+1]  SELECT name FROM users WHERE id = $1  (detected 18 times)
+  [N+1]  SELECT name FROM projects WHERE id = $1  (detected 12 times)
+  [SLOW] SELECT pg_sleep(?)  (avg 153ms, 2 occurrences)
+
+Exit: 1 (3 problems found)</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="http-tap" data-paint="http" aria-labelledby="http-title">
+    <div class="wrap band-grid">
+      <div class="band-copy">
+        <h2 id="http-title">http-tap</h2>
+        <p class="lede">For anything that speaks HTTP. A reverse proxy in front of your server that records headers, bodies, status codes, and timing for every request.</p>
+        <ul>
+          <li>Read request and response bodies, up to 64 KB each</li>
+          <li>Edit a captured request in <code>$EDITOR</code> and send it again, or replay it from the browser</li>
+          <li>Compare endpoints by count, errors, and time</li>
+          <li>Export captures as JSON or Markdown</li>
+          <li>Proxy HTTPS upstreams, including self-signed ones</li>
+        </ul>
+        <p class="links"><a href="https://github.com/proto-tap/http-tap">http-tap on GitHub</a></p>
+      </div>
+      <div class="viewer">
+        <div class="win">
+          <div class="tabs win-tabs" role="tablist" aria-label="http-tap screens">
+            <button type="button" role="tab" aria-selected="true" aria-controls="http-p1" id="http-t1">Inspector</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="http-p2" id="http-t2">Analytics</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="http-p3" id="http-t3">Web UI</button>
+          </div>
+          <div class="panels">
+            <div class="panel" role="tabpanel" id="http-p1" aria-labelledby="http-t1" tabindex="0">
+              <img src="assets/shots/http-inspect.webp" width="1786" height="988" alt="The http-tap inspector showing a POST request with its headers and JSON bodies" loading="lazy">
+            </div>
+            <div class="panel" role="tabpanel" id="http-p2" aria-labelledby="http-t2" tabindex="0" hidden>
+              <img src="assets/shots/http-analytics.webp" width="1786" height="600" alt="http-tap analytics listing endpoints by count, errors, average, and total time" loading="lazy">
+            </div>
+            <div class="panel" role="tabpanel" id="http-p3" aria-labelledby="http-t3" tabindex="0" hidden>
+              <img src="assets/shots/web-http.webp" width="2800" height="1720" alt="The http-tap Web UI listing requests, with a selected request and a Replay button" loading="lazy">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="grpc-tap" data-paint="grpc" aria-labelledby="grpc-title">
+    <div class="wrap band-grid">
+      <div class="band-copy">
+        <h2 id="grpc-title">grpc-tap</h2>
+        <p class="lede">For gRPC, gRPC-Web, and Connect. An HTTP/2 reverse proxy that records headers, bodies, status codes, and timing for every call.</p>
+        <ul>
+          <li>Capture all three protocols through one port</li>
+          <li>Read message bodies without your <code>.proto</code> files, by field number</li>
+          <li>Edit a request body as JSON and resend it</li>
+          <li>Compare methods by count, errors, and time</li>
+          <li>Export captures as JSON or Markdown</li>
+        </ul>
+        <p class="links"><a href="https://github.com/proto-tap/grpc-tap">grpc-tap on GitHub</a></p>
+      </div>
+      <div class="viewer">
+        <div class="win">
+          <div class="tabs win-tabs" role="tablist" aria-label="grpc-tap screens">
+            <button type="button" role="tab" aria-selected="true" aria-controls="grpc-p1" id="grpc-t1">Inspector</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="grpc-p2" id="grpc-t2">Analytics</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="grpc-p3" id="grpc-t3">Web UI</button>
+          </div>
+          <div class="panels">
+            <div class="panel" role="tabpanel" id="grpc-p1" aria-labelledby="grpc-t1" tabindex="0">
+              <img src="assets/shots/grpc-inspect.webp" width="1786" height="988" alt="The grpc-tap inspector showing a Connect call with its headers and bodies by field number" loading="lazy">
+            </div>
+            <div class="panel" role="tabpanel" id="grpc-p2" aria-labelledby="grpc-t2" tabindex="0" hidden>
+              <img src="assets/shots/grpc-analytics.webp" width="1786" height="600" alt="grpc-tap analytics listing methods by count, errors, average, and total time" loading="lazy">
+            </div>
+            <div class="panel" role="tabpanel" id="grpc-p3" aria-labelledby="grpc-t3" tabindex="0" hidden>
+              <img src="assets/shots/web-grpc.webp" width="2800" height="1720" alt="The grpc-tap Web UI listing calls, with a selected call and a Replay button" loading="lazy">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="install" id="install" aria-labelledby="install-title">
+    <div class="wrap">
+      <h2 id="install-title">Install</h2>
+      <p>Each cask installs the client and its proxy daemon.</p>
+      <div class="table">
+        <table>
+          <thead><tr><th scope="col">Tool</th><th scope="col">Captures</th><th scope="col">Clients</th><th scope="col">Homebrew</th></tr></thead>
+          <tbody>
+            <tr data-paint="sql">
+              <th scope="row"><a href="https://github.com/proto-tap/sql-tap">sql-tap</a></th>
+              <td>PostgreSQL, MySQL, TiDB</td>
+              <td>Terminal, browser</td>
+              <td><div class="cmd"><code>brew install --cask proto-tap/tap/sql-tap</code><button type="button" class="copy">Copy</button></div></td>
+            </tr>
+            <tr data-paint="http">
+              <th scope="row"><a href="https://github.com/proto-tap/http-tap">http-tap</a></th>
+              <td>HTTP, HTTPS upstreams</td>
+              <td>Terminal, browser</td>
+              <td><div class="cmd"><code>brew install --cask proto-tap/tap/http-tap</code><button type="button" class="copy">Copy</button></div></td>
+            </tr>
+            <tr data-paint="grpc">
+              <th scope="row"><a href="https://github.com/proto-tap/grpc-tap">grpc-tap</a></th>
+              <td>gRPC, gRPC-Web, Connect</td>
+              <td>Terminal, browser</td>
+              <td><div class="cmd"><code>brew install --cask proto-tap/tap/grpc-tap</code><button type="button" class="copy">Copy</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="go">
+        <p>With Go, install both binaries. This example is for sql-tap; swap in the tool you want.</p>
+        <pre tabindex="0"><code>go install github.com/proto-tap/sql-tap@latest
+go install github.com/proto-tap/sql-tap/cmd/sql-tapd@latest</code></pre>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>proto-tap is open source under the <a href="https://github.com/proto-tap/sql-tap/blob/main/LICENSE">MIT license</a>.</p>
+    <ul>
+      <li><a href="https://github.com/proto-tap">GitHub</a></li>
+      <li><a href="https://github.com/sponsors/mickamy">Sponsor</a></li>
+    </ul>
+  </div>
+</footer>
+
+</body>
+</html>
